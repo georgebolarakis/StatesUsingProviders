@@ -1,11 +1,9 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/cart.dart';
+import '../providers/cart.dart' show Cart;
+import '../widgets/cart_item.dart';
 import '../providers/orders.dart';
-import '../widgets/cart_item.dart' as ci;
 
 class CartScreen extends StatelessWidget {
   static const routeName = '/cart';
@@ -30,53 +28,42 @@ class CartScreen extends StatelessWidget {
                     'Total',
                     style: TextStyle(fontSize: 20),
                   ),
-                  // SizedBox(
-                  //   width: 10,
-                  // ),
-                  //the spacer pushes everything after it to the right
                   Spacer(),
-                  //New widget like label with rounded corners
                   Chip(
                     label: Text(
-                      //we just allow two decimal points
-                      '\$${cart.totalAmmount.toStringAsFixed(2)}',
+                      '\$${cart.totalAmount.toStringAsFixed(2)}',
                       style: TextStyle(
-                        color:
-                            Theme.of(context).primaryTextTheme.titleLarge.color,
+                        color: Theme.of(context).primaryTextTheme.titleLarge.color,
                       ),
                     ),
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
                   FlatButton(
+                    child: Text('ORDER NOW'),
                     onPressed: () {
                       Provider.of<Orders>(context, listen: false).addOrder(
                         cart.items.values.toList(),
-                        cart.totalAmmount,
+                        cart.totalAmount,
                       );
                       cart.clear();
                     },
-                    child: Text(
-                      'Order Now',
-                    ),
                     textColor: Theme.of(context).primaryColor,
                   )
                 ],
               ),
             ),
           ),
-          SizedBox(
-            height: 10,
-          ),
+          SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
               itemCount: cart.items.length,
-              itemBuilder: (ctx, i) => ci.CartItem(
-                id: cart.items.values.toList()[i].id,
-                title: cart.items.values.toList()[i].title,
-                quantity: cart.items.values.toList()[i].quantity,
-                price: cart.items.values.toList()[i].price,
-                productId: cart.items.keys.toList()[i],
-              ),
+              itemBuilder: (ctx, i) => CartItem(
+                    cart.items.values.toList()[i].id,
+                    cart.items.keys.toList()[i],
+                    cart.items.values.toList()[i].price,
+                    cart.items.values.toList()[i].quantity,
+                    cart.items.values.toList()[i].title,
+                  ),
             ),
           )
         ],

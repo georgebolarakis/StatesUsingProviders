@@ -1,15 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_complete_guide/widgets/cart_item.dart';
+import 'package:flutter/foundation.dart';
 
-//we are defining cart items
-class PCartItem {
-  //we are defining how the cart will look like
+class CartItem {
   final String id;
   final String title;
   final int quantity;
   final double price;
 
-  PCartItem({
+  CartItem({
     @required this.id,
     @required this.title,
     @required this.quantity,
@@ -18,17 +15,17 @@ class PCartItem {
 }
 
 class Cart with ChangeNotifier {
-  //we are managing the cart items
-  //we want to map every cart item to the id of the product that it belongs
-  //since the cart id is different than the id of the product
-  Map<String, PCartItem> _items = {};
+  Map<String, CartItem> _items = {};
+
+  Map<String, CartItem> get items {
+    return {..._items};
+  }
 
   int get itemCount {
     return _items.length;
   }
 
-//we are creating a getter for the total ammount that will be used in the cart_screen
-  double get totalAmmount {
+  double get totalAmount {
     var total = 0.0;
     _items.forEach((key, cartItem) {
       total += cartItem.price * cartItem.quantity;
@@ -36,35 +33,31 @@ class Cart with ChangeNotifier {
     return total;
   }
 
-  //we want to get the items that are in the cart from the items in the products
-  Map<String, PCartItem> get items {
-    return {..._items};
-  }
-
-  //we want to be able to add an item
-  void addItem(String productId, double price, String title) {
-    //we first need to check if we have the specific item in our cart
-    //if yes we need to increment the quantity
-    //if not we need toadd it
+  void addItem(
+    String productId,
+    double price,
+    String title,
+  ) {
     if (_items.containsKey(productId)) {
-      //change the quantity
+      // change quantity...
       _items.update(
-          productId,
-          (existingCartItem) => PCartItem(
+        productId,
+        (existingCartItem) => CartItem(
               id: existingCartItem.id,
               title: existingCartItem.title,
               price: existingCartItem.price,
-              quantity: existingCartItem.quantity + 1));
+              quantity: existingCartItem.quantity + 1,
+            ),
+      );
     } else {
-      //we are creating a new cart item
       _items.putIfAbsent(
         productId,
-        () => PCartItem(
-          id: DateTime.now().toString(),
-          title: title,
-          price: price,
-          quantity: 1,
-        ),
+        () => CartItem(
+              id: DateTime.now().toString(),
+              title: title,
+              price: price,
+              quantity: 1,
+            ),
       );
     }
     notifyListeners();
@@ -81,22 +74,20 @@ class Cart with ChangeNotifier {
     }
     if (_items[productId].quantity > 1) {
       _items.update(
-        productId,
-        (existingCartItem) => PCartItem(
-          id: existingCartItem.id,
-          price: existingCartItem.price,
-          quantity: existingCartItem.quantity - 1,
-          title: existingCartItem.title,
-        ),
-      );
+          productId,
+          (existingCartItem) => CartItem(
+                id: existingCartItem.id,
+                title: existingCartItem.title,
+                price: existingCartItem.price,
+                quantity: existingCartItem.quantity - 1,
+              ));
     } else {
       _items.remove(productId);
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   void clear() {
-    //we are setting _items to an empty Map
     _items = {};
     notifyListeners();
   }
